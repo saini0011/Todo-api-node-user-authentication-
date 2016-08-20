@@ -33,7 +33,7 @@ app.get('/todos/:id',function(req,res){
 			res.json(matchedTodo);
 		}
 		else{
-			res.status(404).send();
+			res.status(404).send("ID not Found");
 		}
 	
 			
@@ -89,6 +89,18 @@ app.put('/todos/:id', function(req,res){
  else{
 	res.status(404).send("Bad Request Data");
 }
+
+});
+
+app.delete('/todos/:id',function(req,res){
+		var id;
+	if((id = parseInt(req.params.id))&&todos.length>0){
+	  todos = _.reject(todos,function(t){ return t.id===id});
+	  res.json(todos);
+	}
+	else{
+		res.status(400).send("Bad Request Data");
+	}
 
 });
 

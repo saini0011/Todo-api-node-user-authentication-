@@ -13,8 +13,23 @@ app.get('/',function(req,res){
 });
 
 app.get('/todos',function(req,res){
+	var filtredArray = [];
+	var queryString = req.query.completed;
+	if(queryString==='true'){
+		filtredArray = _.filter(todos,function(todo){return todo.completed===true })
+		res.json(filtredArray);
+	}
+	else if(queryString==='false'){
+		filtredArray = _.filter(todos,function(todo){return todo.completed===false })
+		res.json(filtredArray);
+	}
+	else{
+	    res.status(400).send("Bad Request Data");	
+	  } 
 
-	res.json(todos);
+
+	
+	
 
 });
 

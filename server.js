@@ -14,13 +14,17 @@ app.get('/',function(req,res){
 
 app.get('/todos',function(req,res){
 	var filtredArray = [];
-	var queryString = req.query.completed;
-	if(queryString==='true'){
-		filtredArray = _.filter(todos,function(todo){return todo.completed===true })
+	var queryString = req.query;
+	if(queryString.hasOwnProperty('completed')&&queryString.completed==='true'){
+		filtredArray = _.filter(todos,function(todo){return todo.completed===true&&(todo.desc.indexOf(queryString.desc)> -1) });
 		res.json(filtredArray);
 	}
-	else if(queryString==='false'){
-		filtredArray = _.filter(todos,function(todo){return todo.completed===false })
+	else if(queryString.hasOwnProperty('completed')&&queryString.completed==='false'){
+		filtredArray = _.filter(todos,function(todo){return todo.completed===false&&(todo.desc.indexOf(queryString.desc)> -1)});
+		res.json(filtredArray);
+	}
+	else if(queryString.hasOwnProperty('desc')&&queryString.desc.trim().length>0){
+		filtredArray = _.filter(todos,function(todo){return todo.desc.indexOf(queryString.desc)>-1});
 		res.json(filtredArray);
 	}
 	else{

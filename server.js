@@ -16,17 +16,48 @@ app.get('/todos',function(req,res){
 	var filtredArray = [];
 	var queryString = req.query;
 	if(queryString.hasOwnProperty('completed')&&queryString.completed==='true'){
-		filtredArray = _.filter(todos,function(todo){return todo.completed===true&&(todo.desc.indexOf(queryString.desc)> -1) });
-		res.json(filtredArray);
+		filtredArray = _.filter(todos,function(todo){return todo.completed===true });
+		if(queryString.hasOwnProperty('desc')&&queryString.desc.trim().length>0){
+		filtredArray = _.filter(filtredArray,function(todo){return todo.desc.indexOf(queryString.desc)>-1});
+		if(filtredArray.length===0){
+				res.send("No Entries Found");	
+			}
+			else{
+			res.json(filtredArray);
+			}
+		
+	}
+		else{ 
+			if(filtredArray.length===0){
+				res.send("No Entries Found");	
+			}
+			else{
+			res.json(filtredArray);
+			}
+		}
 	}
 	else if(queryString.hasOwnProperty('completed')&&queryString.completed==='false'){
-		filtredArray = _.filter(todos,function(todo){return todo.completed===false&&(todo.desc.indexOf(queryString.desc)> -1)});
-		res.json(filtredArray);
+		filtredArray = _.filter(todos,function(todo){return todo.completed===false});
+		if(queryString.hasOwnProperty('desc')&&queryString.desc.trim().length>0){
+		filtredArray = _.filter(filtredArray,function(todo){return todo.desc.indexOf(queryString.desc)>-1});
+		if(filtredArray.length===0){
+				res.send("No Entries Found");	
+			}
+			else{
+			res.json(filtredArray);
+			}
 	}
-	else if(queryString.hasOwnProperty('desc')&&queryString.desc.trim().length>0){
-		filtredArray = _.filter(todos,function(todo){return todo.desc.indexOf(queryString.desc)>-1});
-		res.json(filtredArray);
+		else{ 
+			if(filtredArray.length===0){
+				res.send("No Entries Found");	
+			}
+			else{
+			res.json(filtredArray);
+			}
+		}
+
 	}
+	 
 	else{
 	    res.status(400).send("Bad Request Data");	
 	  } 

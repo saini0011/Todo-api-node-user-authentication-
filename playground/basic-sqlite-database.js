@@ -6,21 +6,52 @@ var sequelize = new Sequelize(undefined,undefined,undefined,{
 
 var Todo = sequelize.define('todo',{
 	desc:{
-	type: Sequelize.STRING	
+	type: Sequelize.STRING,	
+	allowNull:false,
+	validate:{
+		len:[1,250]
+	}
 	},
 	completed:{
-	type: Sequelize.BOOLEAN	
+	type: Sequelize.BOOLEAN,
+	allowNull:false,
+	defaultValue:false	
+	
 	}
 });
 
-sequelize.sync().then(function(){
+sequelize.sync({force:true}).then(function(){
 	console.log('everything works fine');
 	Todo.create({
-		desc:'walk the dog',
+		desc:'take dog on walk',
 		completed:false
 	}).then(function(todo){
-		console.log('finished');
-		console.log(todo);
+		return Todo.create({
+		desc:'Go to Office'
+	});
 
+	}).then(function(){
+		//return Todo.findById(1)
+		return Todo.findAll({
+			where:{
+				//completed:false
+				desc:{
+					$like:'%o%'
+				}
+			}
+		})
+	}).then(function(todo){
+		if(todo){
+
+			todo.forEach(function(t){
+			console.log(t.toJSON());	
+			});
+			
+		}else{
+			console.log('no todo');
+		}
+
+	}).catch(function(err){
+		console.log('something went wrong',err);
 	});
 });

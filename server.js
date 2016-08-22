@@ -3,6 +3,7 @@ var app = express();
 var middleware = require('./middleware.js');
 var bodyParser=require('body-parser');
 var _ = require('underscore');
+var db = require('./db.js');
 app.use(bodyParser.json());
 var port = process.env.PORT || 3000;
 var todos = [];
@@ -95,11 +96,18 @@ app.post('/todos',function(req,res){
 	var body =_.pick(req.body,'desc','completed');
 	if(_.isBoolean(body.completed)&&_.isString(body.desc)&&body.desc.trim().length>0){
 		console.log(body);
-	body.id = todoId;
-	body.desc = body.desc.trim();
-	todos.push(body);
-	todoId++;
-	res.send(body);
+	db.todo.create(body)
+	.then(function(todo){
+		res.json(todo);
+	})
+	.catch(function(err){
+		res.status(400).send(err);
+	});	
+	// body.id = todoId;
+	// body.desc = body.desc.trim();
+	// todos.push(body);
+	// todoId++;
+	//res.send(body);
 
 	}
     else{
@@ -167,9 +175,17 @@ app.delete('/todos/:id',function(req,res){
 // 	res.send('about us called!!');
 // });
 
-app.use(express.static(__dirname+'/public'));
-console.log(__dirname);
+db.sequelize.sync().then(function(){
 
 app.listen(port,function(){
 	console.log('I m listening');
 });
+
+	});
+
+app.use(express.static(__dirname+'/public'));
+console.log(__dirname);
+
+// app.listen(port,function(){
+// 	console.log('I m listening');
+// });

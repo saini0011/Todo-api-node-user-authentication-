@@ -15,53 +15,77 @@ app.get('/',function(req,res){
 
 app.get('/todos',function(req,res){
 	var filtredArray = [];
+	var where={};
 	var queryString = req.query;
 	if(queryString.hasOwnProperty('completed')&&queryString.completed==='true'){
-		filtredArray = _.filter(todos,function(todo){return todo.completed===true });
-		if(queryString.hasOwnProperty('desc')&&queryString.desc.trim().length>0){
-		filtredArray = _.filter(filtredArray,function(todo){return todo.desc.indexOf(queryString.desc)>-1});
-		if(filtredArray.length===0){
-				res.send("No Entries Found");	
-			}
-			else{
-			res.json(filtredArray);
-			}
+		where.completed=true;
 		
 	}
-		else{ 
-			if(filtredArray.length===0){
-				res.send("No Entries Found");	
-			}
-			else{
-			res.json(filtredArray);
-			}
-		}
-	}
 	else if(queryString.hasOwnProperty('completed')&&queryString.completed==='false'){
-		filtredArray = _.filter(todos,function(todo){return todo.completed===false});
-		if(queryString.hasOwnProperty('desc')&&queryString.desc.trim().length>0){
-		filtredArray = _.filter(filtredArray,function(todo){return todo.desc.indexOf(queryString.desc)>-1});
-		if(filtredArray.length===0){
-				res.send("No Entries Found");	
-			}
-			else{
-			res.json(filtredArray);
-			}
-	}
-		else{ 
-			if(filtredArray.length===0){
-				res.send("No Entries Found");	
-			}
-			else{
-			res.json(filtredArray);
-			}
-		}
+		where.completed=false;
+		
+	} 
 
+	// else{
+	//     res.status(400).send("Bad Request Data");	
+	//   }
+
+	if(queryString.hasOwnProperty('desc')&&queryString.desc.trim().length>0){
+		where.desc={
+			$like:'%'+queryString.desc+'%'	
+		};
 	}
+			db.todo.findAll({where:where})
+			.then(function(todos){
+				res.json(todos);
+			},function(err){
+				res.status(500).send();
+			}
+			);
+	// if(queryString.hasOwnProperty('completed')&&queryString.completed==='true'){
+	// 	filtredArray = _.filter(todos,function(todo){return todo.completed===true });
+	// 	if(queryString.hasOwnProperty('desc')&&queryString.desc.trim().length>0){
+	// 	filtredArray = _.filter(filtredArray,function(todo){return todo.desc.indexOf(queryString.desc)>-1});
+	// 	if(filtredArray.length===0){
+	// 			res.send("No Entries Found");	
+	// 		}
+	// 		else{
+	// 		res.json(filtredArray);
+	// 		}
+		
+	// }
+	// 	else{ 
+	// 		if(filtredArray.length===0){
+	// 			res.send("No Entries Found");	
+	// 		}
+	// 		else{
+	// 		res.json(filtredArray);
+	// 		}
+	// 	}
+	// }
+	// else if(queryString.hasOwnProperty('completed')&&queryString.completed==='false'){
+	// 	filtredArray = _.filter(todos,function(todo){return todo.completed===false});
+	// 	if(queryString.hasOwnProperty('desc')&&queryString.desc.trim().length>0){
+	// 	filtredArray = _.filter(filtredArray,function(todo){return todo.desc.indexOf(queryString.desc)>-1});
+	// 	if(filtredArray.length===0){
+	// 			res.send("No Entries Found");	
+	// 		}
+	// 		else{
+	// 		res.json(filtredArray);
+	// 		}
+	// }
+	// 	else{ 
+	// 		if(filtredArray.length===0){
+	// 			res.send("No Entries Found");	
+	// 		}
+	// 		else{
+	// 		res.json(filtredArray);
+	// 		}
+	// 	}
+
+	// }
 	 
-	else{
-	    res.status(400).send("Bad Request Data");	
-	  } 
+	 
 
 
 	

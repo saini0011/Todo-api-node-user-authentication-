@@ -71,21 +71,35 @@ app.get('/todos',function(req,res){
 
 app.get('/todos/:id',function(req,res){
 		var id = parseInt(req.params.id);
-		//console.log(id);
-		var matchedTodo;
-	todos.forEach(function(f){
 
-		if(f.id===id){
-			matchedTodo = f;
+		db.todo.findById(id)
+		.then(function(todo){
+			if(!!todo){
+				res.json(todo.toJSON());	
+			}
+			else{
+				res.status(404).send('ID not found');
+			}
 			
-		}
+
+		}).catch(function(err){
+			res.status(400).send(err);
 		});
-		if(matchedTodo){
-			res.json(matchedTodo);
-		}
-		else{
-			res.status(404).send("ID not Found");
-		}
+		//console.log(id);
+	// 	var matchedTodo;
+	// todos.forEach(function(f){
+
+	// 	if(f.id===id){
+	// 		matchedTodo = f;
+			
+	// 	}
+	// 	});
+	// 	if(matchedTodo){
+	// 		res.json(matchedTodo);
+	// 	}
+	// 	else{
+	// 		res.status(404).send("ID not Found");
+	// 	}
 	
 			
 

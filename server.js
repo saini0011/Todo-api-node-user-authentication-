@@ -189,14 +189,27 @@ app.put('/todos/:id', function(req,res){
 });
 
 app.delete('/todos/:id',function(req,res){
-		var id;
-	if((id = parseInt(req.params.id))&&todos.length>0){
-	  todos = _.reject(todos,function(t){ return t.id===id});
-	  res.json(todos);
-	}
-	else{
-		res.status(400).send("Bad Request Data");
-	}
+	
+	var todoId = parseInt(req.params.id);
+	db.todo.destroy({
+		where:{
+			id:todoId
+		}
+	}).then(function(todoDeleted){
+		if(todoDeleted===0){
+			res.status(404).send('No Todo ID found to delete');
+		}else{
+			res.status(204).send('Data Deleted');
+		}
+	});
+	// 	var id;
+	// if((id = parseInt(req.params.id))&&todos.length>0){
+	//   todos = _.reject(todos,function(t){ return t.id===id});
+	//   res.json(todos);
+	// }
+	// else{
+	// 	res.status(400).send("Bad Request Data");
+	// }
 
 });
 

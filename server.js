@@ -157,34 +157,39 @@ app.post('/todos',function(req,res){
 
 app.put('/todos/:id', function(req,res){
 
-	if(todos.length>0){
-		//console.log('url hit');
+	
+var attr ={};	
   var body = _.pick(req.body,'desc','completed');
-  if(_.isBoolean(body.completed)&&_.isString(body.desc)&&body.desc.trim().length>0){
-  	var matchedTodo;
-  var id = parseInt(req.params.id);
-  var response = todos.forEach(function(t){
-	  if(t.id===id){
-        t.desc = body.desc;
-        t.completed = body.completed;
-        res.send(t);
-        //return;
-	  }
-	  else{
-	    res.status(404).send("Id Not Found");	
-	  }
-	});
-  }
-  	else{
-	    res.status(400).send("Bad Request Data");	
-	  }
+
+
+if(body.hasOwnProperty('desc')){
+	attr.desc = body.desc;
+}
+
+if(body.hasOwnProperty('completed')){
+	attr.completed = body.completed;
+}
+console.log(attr);
 
   
- }
+  	
+  var id = parseInt(req.params.id);
 
- else{
-	res.status(404).send("Bad Request Data");
-}
+  db.todo.findById(id).then(function(todo){
+  		if(todo){
+  			return todo.update(attr,{where:{id:id}});
+  		}else{
+  			res.status(404).send('Id not found');
+  		}
+  },function(err){
+  	res.send(500).send('Id not found');
+  }).then(function(todo){
+  	res.json(todo.toJSON());
+  },function(err){
+  	res.status(400).send('Something went wrong');
+  });
+  
+ 
 
 });
 
@@ -213,6 +218,15 @@ app.delete('/todos/:id',function(req,res){
 
 });
 
+app.post('/users',function(req,res){
+	var body = _.pick(req.body,'email','password');
+	db.user.create(body).then(function(user){
+		res.json(user.toJSON());
+	},function(err){
+		res.status(400).json(err);
+	})
+});
+
 
 
 
@@ -234,8 +248,8 @@ app.listen(port,function(){
 
 	});
 
-app.use(express.static(__dirname+'/public'));
-console.log(__dirname);
+// app.use(express.static(__dirname+'/public'));
+// console.log(__dirname);
 
 // app.listen(port,function(){
 // 	console.log('I m listening');

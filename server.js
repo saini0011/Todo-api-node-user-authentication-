@@ -16,7 +16,9 @@ app.get('/',function(req,res){
 
 app.get('/todos',middleware.requireAuthentication,function(req,res){
 	var filtredArray = [];
-	var where={};
+	var where={
+		userId:req.user.get('id')
+	};
 	var queryString = req.query;
 	if(queryString.hasOwnProperty('completed')&&queryString.completed==='true'){
 		where.completed=true;
@@ -95,9 +97,14 @@ app.get('/todos',middleware.requireAuthentication,function(req,res){
 });
 
 app.get('/todos/:id',middleware.requireAuthentication,function(req,res){
-		var id = parseInt(req.params.id);
+		var todoId = parseInt(req.params.id);
 
-		db.todo.findById(id)
+		db.todo.findOne({
+			where:{
+				id: todoId,
+				userId:req.user.get('id')
+			}
+		})
 		.then(function(todo){
 			if(!!todo){
 				res.json(todo.toJSON());	
@@ -165,20 +172,25 @@ console.log(attr);
 
   
   	
-  var id = parseInt(req.params.id);
+  var todoId = parseInt(req.params.id);
 
-  db.todo.findById(id).then(function(todo){
+  db.todo.findOne({
+  	where:{
+  	id:todoId,
+  	userId:req.user.get('id')
+  	}
+  }).then(function(todo){
   		if(todo){
-  			return todo.update(attr,{where:{id:id}});
+  			return todo.update(attr).then(function(todo){
+  				res.json(todo.toJSON());
+  			},function(){
+  				res.status(400).json(e);
+  			});
   		}else{
   			res.status(404).send('Id not found');
   		}
-  },function(err){
-  	res.send(500).send('Id not found');
-  }).then(function(todo){
-  	res.json(todo.toJSON());
-  },function(err){
-  	res.status(400).send('Something went wrong');
+  },function(){
+  	res.status(500).send('Something went wrong');
   });
   
  
@@ -190,7 +202,8 @@ app.delete('/todos/:id',middleware.requireAuthentication,function(req,res){
 	var todoId = parseInt(req.params.id);
 	db.todo.destroy({
 		where:{
-			id:todoId
+			id:todoId,
+			userId:req.user.get('id')
 		}
 	}).then(function(todoDeleted){
 		if(todoDeleted===0){
@@ -248,7 +261,9 @@ app.post('/users/login',function(req,res){
 // 	res.send('about us called!!');
 // });
 
-db.sequelize.sync({force:true}).then(function(){
+db.sequelize.sync(
+	//{force:true}
+	).then(function(){
 
 app.listen(port,function(){
 	console.log('I m listening');

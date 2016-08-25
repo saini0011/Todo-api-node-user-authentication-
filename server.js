@@ -133,27 +133,18 @@ app.get('/todos/:id',middleware.requireAuthentication,function(req,res){
 app.post('/todos',middleware.requireAuthentication,function(req,res){
 
 	var body =_.pick(req.body,'desc','completed');
-	if(_.isBoolean(body.completed)&&_.isString(body.desc)&&body.desc.trim().length>0){
+
 		console.log(body);
-	db.todo.create(body)
-	.then(function(todo){
-		res.json(todo);
-	})
-	.catch(function(err){
+	db.todo.create(body).then(function(todo){
+		
+		req.user.addTodo(todo).then(function(){
+			return todo.reload();
+		}).then(function(todo){
+			res.json(todo);
+		});
+		},function(err){
 		res.status(400).send(err);
 	});	
-	// body.id = todoId;
-	// body.desc = body.desc.trim();
-	// todos.push(body);
-	// todoId++;
-	//res.send(body);
-
-	}
-    else{
-	    res.status(400).send("Bad Request Data");	
-	  }
-
-
 });
 
 app.put('/todos/:id',middleware.requireAuthentication, function(req,res){

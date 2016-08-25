@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 var middleware = require('./middleware.js');
 var bodyParser=require('body-parser');
+var bcrypt = require('bcrypt');
 var _ = require('underscore');
 var db = require('./db.js');
 app.use(bodyParser.json());
@@ -227,6 +228,16 @@ app.post('/users',function(req,res){
 	})
 });
 
+app.post('/users/login',function(req,res){
+	var body = _.pick(req.body,'email','password');
+	console.log(body);
+	
+	db.user.authenticate(body).then(function(user){
+		res.json(user.toPublicJSON());
+	},function(){
+		res.status(401).send();
+	})
+});
 
 
 
@@ -240,7 +251,7 @@ app.post('/users',function(req,res){
 // 	res.send('about us called!!');
 // });
 
-db.sequelize.sync().then(function(){
+db.sequelize.sync({force:true}).then(function(){
 
 app.listen(port,function(){
 	console.log('I m listening');

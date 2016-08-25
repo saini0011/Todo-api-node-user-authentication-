@@ -1,13 +1,31 @@
-var middleware = {
-	requiredAuthentication: function(req,res,next){
-		console.log('private route hit');
-		next();
-	},
-	logger: function(req,res,next){
+module.exports = function(db){
 
-		console.log(new Date().toString()+' '+req.method+' '+req.originalUrl);
-		next();
-	}
+	return{
+		requireAuthentication:function(req,res,next){
+				var token = req.get('Auth');
+				db.user.findByToken(token).then(function(user){
+					req.user= user;
+					next();	
+				},function(){
+					res.status(401).send();
+				});
+		}
+
+	};
+
 };
 
-module.exports = middleware;
+
+// var middleware = {
+// 	requiredAuthentication: function(req,res,next){
+// 		console.log('private route hit');
+// 		next();
+// 	},
+// 	logger: function(req,res,next){
+
+// 		console.log(new Date().toString()+' '+req.method+' '+req.originalUrl);
+// 		next();
+// 	}
+// };
+
+// module.exports = middleware;

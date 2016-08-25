@@ -1,10 +1,10 @@
 var express = require('express');
 var app = express();
-var middleware = require('./middleware.js');
 var bodyParser=require('body-parser');
 var bcrypt = require('bcrypt');
 var _ = require('underscore');
 var db = require('./db.js');
+var middleware = require('./middleware.js')(db);
 app.use(bodyParser.json());
 var port = process.env.PORT || 3000;
 var todos = [];
@@ -14,7 +14,7 @@ app.get('/',function(req,res){
 	res.send('Todod Api');
 });
 
-app.get('/todos',function(req,res){
+app.get('/todos',middleware.requireAuthentication,function(req,res){
 	var filtredArray = [];
 	var where={};
 	var queryString = req.query;
@@ -94,7 +94,7 @@ app.get('/todos',function(req,res){
 
 });
 
-app.get('/todos/:id',function(req,res){
+app.get('/todos/:id',middleware.requireAuthentication,function(req,res){
 		var id = parseInt(req.params.id);
 
 		db.todo.findById(id)
@@ -130,7 +130,7 @@ app.get('/todos/:id',function(req,res){
 
 });
 
-app.post('/todos',function(req,res){
+app.post('/todos',middleware.requireAuthentication,function(req,res){
 
 	var body =_.pick(req.body,'desc','completed');
 	if(_.isBoolean(body.completed)&&_.isString(body.desc)&&body.desc.trim().length>0){
@@ -156,7 +156,7 @@ app.post('/todos',function(req,res){
 
 });
 
-app.put('/todos/:id', function(req,res){
+app.put('/todos/:id',middleware.requireAuthentication, function(req,res){
 
 	
 var attr ={};	
@@ -194,7 +194,7 @@ console.log(attr);
 
 });
 
-app.delete('/todos/:id',function(req,res){
+app.delete('/todos/:id',middleware.requireAuthentication,function(req,res){
 	
 	var todoId = parseInt(req.params.id);
 	db.todo.destroy({

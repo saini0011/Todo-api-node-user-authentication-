@@ -261,8 +261,7 @@ app.post('/users/login',function(req,res){
 // 	res.send('about us called!!');
 // });
 
-db.sequelize.sync(
-	//{force:true}
+db.sequelize.sync({force:true}
 	).then(function(){
 
 app.listen(port,function(){
